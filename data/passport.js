@@ -46,6 +46,18 @@ const passport = (passport) => {
       }
     )
   );
+
+  passport.use(
+    new JWTStrategy(
+      {
+        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+        secretOrKey: "jwt_secret",
+      },
+      (jwt_payload, done) => {
+        return done(null, jwt_payload);
+      }
+    )
+  );
 };
 
 module.exports = passport;

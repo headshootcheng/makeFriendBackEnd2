@@ -29,6 +29,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.use("/auth", require("./routes/auth"));
+app.use("/user", require("./routes/user"));
 
 app.listen(8080, function () {
   console.log("Server Start");
