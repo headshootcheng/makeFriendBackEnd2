@@ -20,6 +20,10 @@ app.use(
 //Translate the body of request into json format
 app.use(bodyParser.json());
 
+require("./data/passport")(passport);
+//Passport middleware
+app.use(passport.initialize());
+
 app.get("/hello", (req, res) => {
   res.send("hello");
 });

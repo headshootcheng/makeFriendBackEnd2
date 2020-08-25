@@ -1,12 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
+const bcrypt = require("bcryptjs");
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const User = require("../data/account");
 
 const checkUsername = `SELECT * FROM account WHERE account_name = ? `;
 const checkEmail = `SELECT * FROM account WHERE account_email = ? `;
+const insertAccount = `INSERT INTO account (account_name, account_email, account_password) VALUES (?,?,?)`;
 
 router.get("/test", function (req, res, next) {
   res.send("test");
@@ -64,9 +66,10 @@ router.post(
     }),
   ],
   (req, res) => {
+    const { username, email, password } = req.body;
     const errormsg = [];
     const errors = validationResult(req);
-    console.log(errors);
+    //console.log(errors);
     if (errors.array().length != 0) {
       errors.array().map((error) => {
         errormsg.push(error.msg);
@@ -74,9 +77,31 @@ router.post(
       //console.log("errormsg: " + errormsg);
       res.json({ content: errormsg, type: 2 });
     } else {
-      res.json({ content: ["test"], type: 1 });
+      bcrypt.hash(password, 10, (err, hash) => {
+        User.query(insertAccount, [username, email, hash]);
+      });
+      res.json({
+        content: ["Congrat!!! You are successfully registered!!!"],
+        type: 1,
+      });
     }
   }
 );
+
+router.post("/login", function (req, res, next) {
+  passport.authenticate("login", { session: false }, function (
+    err,
+    user,
+    info
+  ) {
+    console.log("user:", user, "  info: ", info);
+    if (user) {
+      const token = jwt.sign(user, "jwt_secret");
+      res.json({ token: token });
+    } else {
+      res.json(info);
+    }
+  })(req, res, next);
+});
 
 module.exports = router;
