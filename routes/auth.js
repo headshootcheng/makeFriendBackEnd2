@@ -89,7 +89,7 @@ router.post(
 );
 
 router.post("/login", function (req, res, next) {
-  passport.authenticate("login", { session: false }, function (
+  passport.authenticate("local", { session: false }, function (
     err,
     user,
     info
@@ -102,5 +102,41 @@ router.post("/login", function (req, res, next) {
     }
   })(req, res, next);
 });
+
+router.post("/google", (req, res, next) => {
+  console.log("req:", req.body);
+  const token = jwt.sign(req.body, "jwt_secret");
+  res.json({ token: token });
+});
+// router.post(
+//   "/local",
+//   function (req, res, next) {
+//     next();
+//   },
+//   passport.authenticate("local"),
+//   (req, res) => {
+//     res.send(req.user);
+//   }
+// );
+
+// router.get(
+//   "/google",
+//   passport.authenticate("google", {
+//     session: false,
+//     scope: ["profile", "email"],
+//   })
+// );
+
+// router.get(
+//   "/google/callback",
+//   passport.authenticate("google", { session: false }, (err, user, info) => {
+//     if (user) {
+//       const token = jwt.sign(user, "jwt_secret");
+//       console.log(token);
+//       res.redirect("http://127.0.0.1:3000", token);
+//       //res.json({ token: token });
+//     }
+//   })
+// );
 
 module.exports = router;

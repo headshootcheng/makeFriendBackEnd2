@@ -1,13 +1,15 @@
+require("dotenv").config();
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const JWTStrategy = require("passport-jwt").Strategy;
+const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const ExtractJWT = require("passport-jwt").ExtractJwt;
 const User = require("./account");
 const checkUsername = `SELECT * FROM account WHERE account_name = ? `;
 
 const passport = (passport) => {
   passport.use(
-    "login",
+    "local",
     new LocalStrategy(
       {
         usernameField: "username",
@@ -58,6 +60,34 @@ const passport = (passport) => {
       }
     )
   );
+
+  // passport.use(
+  //   new GoogleStrategy(
+  //     {
+  //       clientID: process.env.GOOGLE_ID,
+  //       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  //       callbackURL: "/auth/google/callback",
+  //       passReqToCallback: true,
+  //     },
+  //     function (request, accessToken, refreshToken, profile, done) {
+  //       return done(
+  //         null,
+  //         { username: profile.displayName, email: profile.email },
+  //         {
+  //           message: "Successfully login!!!",
+  //         }
+  //       );
+  //     }
+  //   )
+  // );
+
+  // passport.serializeUser(function (user, done) {
+  //   done(null, user);
+  // });
+
+  // passport.deserializeUser(function (user, done) {
+  //   done(null, user);
+  // });
 };
 
 module.exports = passport;
