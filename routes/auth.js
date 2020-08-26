@@ -103,8 +103,8 @@ router.post("/login", function (req, res, next) {
   })(req, res, next);
 });
 
-router.post("/google", (req, res, next) => {
-  console.log("req:", req.body);
+router.post("/thirdParty", (req, res, next) => {
+  //console.log("req:", req.body);
   const token = jwt.sign(req.body, "jwt_secret");
   res.json({ token: token });
 });
