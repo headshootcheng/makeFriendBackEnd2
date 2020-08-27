@@ -45,7 +45,7 @@ router.post(
     check("username").custom((value, { req }) => {
       return new Promise((resolve, reject) => {
         User.query(checkUsername, [value], function (err, result) {
-          if (result.length > 0) {
+          if (result && result.length > 0) {
             reject(new Error("This username is already existed"));
           } else {
             return resolve(true);
@@ -56,7 +56,7 @@ router.post(
     check("email").custom((value, { req }) => {
       return new Promise((resolve, reject) => {
         User.query(checkEmail, [value], function (err, result) {
-          if (result.length > 0) {
+          if (result && result.length > 0) {
             reject(new Error("This email is already existed"));
           } else {
             return resolve(true);
