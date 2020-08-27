@@ -44,5 +44,5 @@ app.use("/auth", require("./routes/auth"));
 app.use("/user", require("./routes/user"));
 
 app.listen(process.env.PORT, function () {
-  console.log("Server Start");
+  console.log("Server Start ", process.env.NODE_ENV);
 });
