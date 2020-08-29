@@ -6,9 +6,12 @@ const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const User = require("../data/account");
 
-const checkUsername = `SELECT * FROM account WHERE account_name = ? `;
-const checkEmail = `SELECT * FROM account WHERE account_email = ? `;
+const checkAccountName = `SELECT * FROM account WHERE account_name = ? `;
+const checkAccountEmail = `SELECT * FROM account WHERE account_email = ? `;
 const insertAccount = `INSERT INTO account (account_name, account_email, account_password) VALUES (?,?,?)`;
+
+const checkUserTable = `SELECT * FROM userList WHERE email = ? AND provider = ?`;
+const insertNewUser = `INSERT INTO userList (id, username, email, provider) VALUES (?,?,?,?)`;
 
 router.get("/test", function (req, res, next) {
   res.send("test");
@@ -44,7 +47,7 @@ router.post(
     }),
     check("username").custom((value, { req }) => {
       return new Promise((resolve, reject) => {
-        User.query(checkUsername, [value], function (err, result) {
+        User.query(checkAccountName, [value], function (err, result) {
           if (result && result.length > 0) {
             reject(new Error("This username is already existed"));
           } else {
@@ -55,7 +58,7 @@ router.post(
     }),
     check("email").custom((value, { req }) => {
       return new Promise((resolve, reject) => {
-        User.query(checkEmail, [value], function (err, result) {
+        User.query(checkAccountEmail, [value], function (err, result) {
           if (result && result.length > 0) {
             reject(new Error("This email is already existed"));
           } else {
@@ -95,8 +98,33 @@ router.post("/login", function (req, res, next) {
     info
   ) {
     if (user) {
-      const token = jwt.sign(user, "jwt_secret");
-      res.json({ token: token });
+      //console.log(user);
+      const { username, email } = user;
+      User.query(checkUserTable, [email, "Local"], (err, result) => {
+        if (result && result.length > 0) {
+          const { id, username, email, provider } = result[0];
+          userInfo = {
+            userId: id,
+            username: username,
+            email: email,
+            provider: provider,
+          };
+          const token = jwt.sign(userInfo, "jwt_secret");
+          res.json({ token: token });
+        } else {
+          const userId = Math.floor(Math.random() * 10000);
+          //console.log(userId);
+          userInfo = {
+            userId: userId,
+            username: username,
+            email: email,
+            provider: "Local",
+          };
+          User.query(insertNewUser, [userId, username, email, "Local"]);
+          const token = jwt.sign(userInfo, "jwt_secret");
+          res.json({ token: token });
+        }
+      });
     } else {
       res.json(info);
     }
@@ -105,9 +133,35 @@ router.post("/login", function (req, res, next) {
 
 router.post("/thirdParty", (req, res, next) => {
   //console.log("req:", req.body);
-  const token = jwt.sign(req.body, "jwt_secret");
-  res.json({ token: token });
+  const { username, email, provider } = req.body;
+  var userInfo = {};
+  User.query(checkUserTable, [email, provider], (err, result) => {
+    if (result && result.length > 0) {
+      const { id, username, email, provider } = result[0];
+      userInfo = {
+        userId: id,
+        username: username,
+        email: email,
+        provider: provider,
+      };
+      const token = jwt.sign(userInfo, "jwt_secret");
+      res.json({ token: token });
+    } else {
+      const userId = Math.floor(Math.random() * 10000);
+      //console.log(userId);
+      userInfo = {
+        userId: userId,
+        username: username,
+        email: email,
+        provider: provider,
+      };
+      User.query(insertNewUser, [userId, username, email, provider]);
+      const token = jwt.sign(userInfo, "jwt_secret");
+      res.json({ token: token });
+    }
+  });
 });
+
 // router.post(
 //   "/local",
 //   function (req, res, next) {
