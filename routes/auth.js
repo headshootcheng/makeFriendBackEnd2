@@ -12,7 +12,6 @@ const insertAccount = `INSERT INTO account (account_name, account_email, account
 
 const checkUserTable = `SELECT * FROM userList WHERE email = ? AND provider = ?`;
 const insertNewUser = `INSERT INTO userList (id, username, email, provider) VALUES (?,?,?,?)`;
-
 router.get("/test", function (req, res, next) {
   res.send("test");
 });

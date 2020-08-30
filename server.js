@@ -13,7 +13,7 @@ const IS_PROD = process.env.NODE_ENV === "production";
 app.use(
   cors({
     origin: "*",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // allow session cookie from browser to pass through
     allowedHeaders: "Content-Type, Authorization, X-Requested-With",
   })

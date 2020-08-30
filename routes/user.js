@@ -1,14 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const User = require("../data/account");
-const { Result } = require("express-validator");
 
-const createRoom = `INSERT INTO chatroom (room_name,room_owner) VALUES (?,?)`;
-const getRoomList = `select * from chatroom`;
-
+const createRoom = `INSERT INTO chatroom (room_name,room_owner,room_ownerId) VALUES (?,?,?)`;
+const getRoomList = `SELECT * FROM chatroom`;
+const deleteRoom = `DELETE FROM chatroom WHERE room_ownerId = ?`;
 router.get(
   "/userInfo",
   passport.authenticate("jwt", { session: false }),
@@ -19,10 +16,10 @@ router.get(
 );
 
 router.post("/createNewRoom", (req, res) => {
-  const { roomName, owner } = req.body;
-  User.query(createRoom, [roomName, owner]);
+  const { roomName, owner, userId } = req.body;
+  User.query(createRoom, [roomName, owner, userId]);
   //console.log(roomName);
-  res.json({ success: "sucess" });
+  res.json({ success: "success" });
 });
 
 router.get("/getRoomInfo", (req, res) => {
@@ -30,6 +27,12 @@ router.get("/getRoomInfo", (req, res) => {
     //console.log("reuslt ", result);
     res.json({ roomList: result });
   });
+});
+
+router.delete("/deleteRoom", (req, res) => {
+  const { userId } = req.body;
+  User.query(deleteRoom, [userId]);
+  res.json({ success: "success" });
 });
 
 module.exports = router;
