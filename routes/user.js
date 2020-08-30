@@ -17,6 +17,7 @@ router.get(
 
 router.post("/createNewRoom", (req, res) => {
   const { roomName, owner, userId } = req.body;
+  console.log(userId);
   User.query(createRoom, [roomName, owner, userId]);
   //console.log(roomName);
   res.json({ success: "success" });
