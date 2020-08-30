@@ -5,7 +5,7 @@ const User = require("../data/account");
 
 const createRoom = `INSERT INTO chatroom (room_name,room_owner,room_ownerId) VALUES (?,?,?)`;
 const getRoomList = `SELECT * FROM chatroom`;
-const deleteRoom = `DELETE FROM chatroom WHERE room_ownerId = ?`;
+const deleteRoom = `DELETE FROM chatroom WHERE room_ownerId = ? AND room_name = ?`;
 router.get(
   "/userInfo",
   passport.authenticate("jwt", { session: false }),
@@ -17,9 +17,7 @@ router.get(
 
 router.post("/createNewRoom", (req, res) => {
   const { roomName, owner, userId } = req.body;
-  console.log(userId);
   User.query(createRoom, [roomName, owner, userId]);
-  //console.log(roomName);
   res.json({ success: "success" });
 });
 
@@ -31,8 +29,8 @@ router.get("/getRoomInfo", (req, res) => {
 });
 
 router.delete("/deleteRoom", (req, res) => {
-  const { userId } = req.body;
-  User.query(deleteRoom, [userId]);
+  const { userId, roomName } = req.body;
+  User.query(deleteRoom, [userId, roomName]);
   res.json({ success: "success" });
 });
 
