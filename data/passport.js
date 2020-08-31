@@ -2,10 +2,10 @@ require("dotenv").config();
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const JWTStrategy = require("passport-jwt").Strategy;
-const GoogleStrategy = require("passport-google-oauth2").Strategy;
+//const GoogleStrategy = require("passport-google-oauth2").Strategy;
 const ExtractJWT = require("passport-jwt").ExtractJwt;
 const User = require("./account");
-const checkUsername = `SELECT * FROM account WHERE account_name = ? `;
+const { checkAccountName } = require("./sqlCommand");
 
 const passport = (passport) => {
   passport.use(
@@ -15,7 +15,7 @@ const passport = (passport) => {
         usernameField: "username",
       },
       function (username, password, done) {
-        User.query(checkUsername, [username], (err, result) => {
+        User.query(checkAccountName, [username], (err, result) => {
           if (err) throw err;
           if (result.length === 0) {
             return done(null, false, {

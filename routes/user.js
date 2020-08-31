@@ -2,10 +2,8 @@ const express = require("express");
 const router = express.Router();
 const passport = require("passport");
 const User = require("../data/account");
+const { createRoom, getRoomList, deleteRoom } = require("../data/sqlCommand");
 
-const createRoom = `INSERT INTO chatroom (room_name,room_owner,room_ownerId) VALUES (?,?,?)`;
-const getRoomList = `SELECT * FROM chatroom`;
-const deleteRoom = `DELETE FROM chatroom WHERE room_ownerId = ? AND room_name = ?`;
 router.get(
   "/userInfo",
   passport.authenticate("jwt", { session: false }),

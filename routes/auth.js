@@ -5,13 +5,14 @@ const bcrypt = require("bcryptjs");
 const { check, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const User = require("../data/account");
+const {
+  checkAccountName,
+  checkAccountEmail,
+  insertAccount,
+  checkUserTable,
+  insertNewUser,
+} = require("../data/sqlCommand");
 
-const checkAccountName = `SELECT * FROM account WHERE account_name = ? `;
-const checkAccountEmail = `SELECT * FROM account WHERE account_email = ? `;
-const insertAccount = `INSERT INTO account (account_name, account_email, account_password) VALUES (?,?,?)`;
-
-const checkUserTable = `SELECT * FROM userList WHERE email = ? AND provider = ?`;
-const insertNewUser = `INSERT INTO userList (id, username, email, provider) VALUES (?,?,?,?)`;
 router.get("/test", function (req, res, next) {
   res.send("test");
 });
@@ -71,7 +72,6 @@ router.post(
     const { username, email, password } = req.body;
     const errormsg = [];
     const errors = validationResult(req);
-    //console.log(errors);
     if (errors.array().length != 0) {
       errors.array().map((error) => {
         errormsg.push(error.msg);
@@ -112,7 +112,6 @@ router.post("/login", function (req, res, next) {
           res.json({ token: token });
         } else {
           const userId = Math.floor(Math.random() * 10000);
-          //console.log(userId);
           userInfo = {
             userId: userId,
             username: username,
@@ -131,7 +130,6 @@ router.post("/login", function (req, res, next) {
 });
 
 router.post("/thirdParty", (req, res, next) => {
-  //console.log("req:", req.body);
   const { username, email, provider } = req.body;
   var userInfo = {};
   User.query(checkUserTable, [email, provider], (err, result) => {
@@ -147,7 +145,6 @@ router.post("/thirdParty", (req, res, next) => {
       res.json({ token: token });
     } else {
       const userId = Math.floor(Math.random() * 10000);
-      //console.log(userId);
       userInfo = {
         userId: userId,
         username: username,
