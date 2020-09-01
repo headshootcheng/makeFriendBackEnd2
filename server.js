@@ -10,7 +10,7 @@ const https = require("https");
 const fs = require("fs");
 const IS_PROD = process.env.NODE_ENV === "production";
 const socketio = require("socket.io");
-const { addUser, getUser } = require("./data/roomLogic");
+const { addUser, getUser, removeUser } = require("./data/roomLogic");
 const { use } = require("./routes/auth");
 
 if (IS_PROD) {
@@ -67,6 +67,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    const { user } = removeUser(socket.id);
+    io.sockets.in(user.room_name).emit("message", {
+      username: "admin",
+      userId: 0,
+      text: `${user.username} has quited !!!`,
+    });
     console.log("Disconnected");
   });
 });
