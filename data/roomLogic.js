@@ -10,6 +10,7 @@ const addUser = ({ id, username, userId, room_name }) => {
 
 const removeUser = (socketId) => {
   console.log(users);
+  console.log(socketId);
   const user = users.find(({ id }) => id === socketId);
   console.log(user);
   return user;
