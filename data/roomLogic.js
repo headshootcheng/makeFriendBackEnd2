@@ -11,6 +11,7 @@ const addUser = ({ id, username, userId, room_name }) => {
 const removeUser = (id) => {
   console.log(users);
   const user = users.find((user) => user.id === id);
+  console.log(user);
   return user;
 };
 
