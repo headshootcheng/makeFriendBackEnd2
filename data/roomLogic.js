@@ -10,6 +10,8 @@ const addUser = ({ id, username, userId, room_name }) => {
 
 const removeUser = (id) => {
   const user = users.find(({ userId }) => userId === id);
+  const Index = users.findIndex(({ userId }) => userId === id);
+  users.splice(Index, 1);
   return user;
 };
 

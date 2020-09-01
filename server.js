@@ -48,6 +48,7 @@ io.on("connection", (socket) => {
     });
 
     if (user) {
+      console.log(user.room_name);
       socket.join(user.room_name);
 
       io.sockets.in(user.room_name).emit("message", {
