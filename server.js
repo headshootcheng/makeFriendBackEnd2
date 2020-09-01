@@ -47,13 +47,15 @@ io.on("connection", (socket) => {
       room_name: name,
     });
 
-    socket.join(user.room_name);
+    if (user) {
+      socket.join(user.room_name);
 
-    io.sockets.in(user.room_name).emit("message", {
-      username: "admin",
-      userId: 0,
-      text: `${user.username}!  Welcome to room ${user.room_name}!!!`,
-    });
+      io.sockets.in(user.room_name).emit("message", {
+        username: "admin",
+        userId: 0,
+        text: `${user.username}!  Welcome to room ${user.room_name}!!!`,
+      });
+    }
   });
 
   socket.on("sendMessage", ({ userId, text }) => {
@@ -69,7 +71,6 @@ io.on("connection", (socket) => {
 
   socket.on("quitRoom", ({ userId }, callback) => {
     const user = removeUser(userId);
-    console.log("user", user);
     if (user) {
       io.sockets.in(user.room_name).emit("message", {
         username: "admin",
