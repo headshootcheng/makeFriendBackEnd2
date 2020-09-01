@@ -11,7 +11,6 @@ const fs = require("fs");
 const IS_PROD = process.env.NODE_ENV === "production";
 const socketio = require("socket.io");
 const { addUser, getUser, removeUser } = require("./data/roomLogic");
-const { use } = require("./routes/auth");
 
 if (IS_PROD) {
   server = https.createServer(
@@ -57,13 +56,15 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("sendMessage", (message) => {
-    const user = getUser(socket.id);
-    io.sockets.in(user.room_name).emit("message", {
-      username: user.username,
-      userId: user.userId,
-      text: message,
-    });
+  socket.on("sendMessage", ({ userId, text }) => {
+    const user = getUser(userId);
+    if (user) {
+      io.sockets.in(user.room_name).emit("message", {
+        username: user.username,
+        userId: user.userId,
+        text: text,
+      });
+    }
   });
 
   socket.on("quitRoom", ({ userId }, callback) => {
