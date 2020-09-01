@@ -8,11 +8,9 @@ const addUser = ({ id, username, userId, room_name }) => {
   return { user };
 };
 
-const removeUser = (socketId) => {
-  console.log(users);
-  console.log(socketId);
-  const user = users.find(({ id }) => id === socketId);
-  console.log(user);
+const removeUser = (id) => {
+  const user = users.find(({ userId }) => userId === id);
+  //console.log(user);
   return user;
 };
 

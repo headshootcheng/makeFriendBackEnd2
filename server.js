@@ -66,14 +66,22 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("disconnect", () => {
-    const user = removeUser(socket.id);
+  socket.on("quitRoom", ({ userId }, callback) => {
+    const user = removeUser(userId);
     console.log("user", user);
-    io.sockets.in(user.room_name).emit("message", {
-      username: "admin",
-      userId: 0,
-      text: `${user.username} has quited !!!`,
-    });
+    if (user) {
+      io.sockets.in(user.room_name).emit("message", {
+        username: "admin",
+        userId: 0,
+        text: `${user.username} has quited !!!`,
+      });
+      callback({ msg: "success" });
+    } else {
+      callback({ msg: "error" });
+    }
+  });
+
+  socket.on("disconnect", () => {
     console.log("Disconnected");
   });
 });
