@@ -5,9 +5,71 @@ const bodyParser = require("body-parser");
 const app = express();
 //const session = require("express-session");
 const passport = require("passport");
+const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const IS_PROD = process.env.NODE_ENV === "production";
+const socketio = require("socket.io");
+const { addUser, getUser } = require("./data/roomLogic");
+const { use } = require("./routes/auth");
+
+if (IS_PROD) {
+  server = https.createServer(
+    {
+      key: fs.readFileSync(
+        "/etc/letsencrypt/live/friendchats.xyz/privkey.pem",
+        "utf8"
+      ),
+      cert: fs.readFileSync(
+        "/etc/letsencrypt/live/friendchats.xyz/cert.pem",
+        "utf8"
+      ),
+      ca: fs.readFileSync(
+        "/etc/letsencrypt/live/friendchats.xyz/chain.pem",
+        "utf8"
+      ),
+    },
+    app
+  );
+} else {
+  server = http.createServer(app);
+}
+
+const io = socketio(server);
+
+io.on("connection", (socket) => {
+  console.log("new connection");
+
+  socket.on("join", ({ name, userId, username }) => {
+    const { user } = addUser({
+      id: socket.id,
+      username: username,
+      userId: userId,
+      room_name: name,
+    });
+
+    socket.join(user.room_name);
+
+    io.sockets.in(user.room_name).emit("message", {
+      username: "admin",
+      userId: 0,
+      text: `${user.username}!  Welcome to room ${user.room_name}!!!`,
+    });
+  });
+
+  socket.on("sendMessage", (message) => {
+    const user = getUser(socket.id);
+    io.sockets.in(user.room_name).emit("message", {
+      username: user.username,
+      userId: user.userId,
+      text: message,
+    });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Disconnected");
+  });
+});
 
 // Solve the CORS policy
 app.use(
@@ -46,30 +108,6 @@ app.get("/hello", (req, res) => {
 app.use("/auth", require("./routes/auth"));
 app.use("/user", require("./routes/user"));
 
-if (IS_PROD) {
-  https
-    .createServer(
-      {
-        key: fs.readFileSync(
-          "/etc/letsencrypt/live/friendchats.xyz/privkey.pem",
-          "utf8"
-        ),
-        cert: fs.readFileSync(
-          "/etc/letsencrypt/live/friendchats.xyz/cert.pem",
-          "utf8"
-        ),
-        ca: fs.readFileSync(
-          "/etc/letsencrypt/live/friendchats.xyz/chain.pem",
-          "utf8"
-        ),
-      },
-      app
-    )
-    .listen(process.env.PORT, function () {
-      console.log("Server Start ", process.env.NODE_ENV);
-    });
-} else {
-  app.listen(process.env.PORT, function () {
-    console.log("Server Start ");
-  });
-}
+server.listen(process.env.PORT, function () {
+  console.log("Server Start");
+});
