@@ -81,6 +81,7 @@ io.on("connection", (socket) => {
 
   socket.on("quitRoom", ({ userId }, callback) => {
     const user = removeUser(userId);
+    socket.leave(user.room_name);
     if (user) {
       io.sockets.in(user.room_name).emit("message", {
         username: "admin",
