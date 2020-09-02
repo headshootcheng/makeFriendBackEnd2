@@ -54,7 +54,7 @@ io.on("connection", (socket) => {
     if (user) {
       console.log(user.room_name);
       socket.join(user.room_name);
-
+      console.log(getUsersInRoom(user.room_name));
       io.sockets.in(user.room_name).emit("message", {
         username: "admin",
         userId: 0,
@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
         userId: 0,
         text: `${user.username} has quited !!!`,
       });
-
+      console.log(getUsersInRoom(user.room_name));
       io.sockets.in(user.room_name).emit("room_info", {
         room: user.room_name,
         userList: getUsersInRoom(user.room_name),
