@@ -79,14 +79,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("refreshDashboard", ({ userId }) => {
-    const user = removeUser(userId);
-    io.sockets.in(user.room_name).emit("room_info", {
-      room: user.room_name,
-      userList: getUsersInRoom(user.room_name),
-    });
-  });
-
   socket.on("quitRoom", ({ userId }, callback) => {
     const user = removeUser(userId);
     if (user) {
