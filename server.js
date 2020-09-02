@@ -3,14 +3,18 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const app = express();
-//const session = require("express-session");
 const passport = require("passport");
 const http = require("http");
 const https = require("https");
 const fs = require("fs");
 const IS_PROD = process.env.NODE_ENV === "production";
 const socketio = require("socket.io");
-const { addUser, getUser, removeUser } = require("./data/roomLogic");
+const {
+  addUser,
+  getUser,
+  removeUser,
+  getUsersInRoom,
+} = require("./data/roomLogic");
 
 if (IS_PROD) {
   server = https.createServer(
@@ -56,6 +60,11 @@ io.on("connection", (socket) => {
         userId: 0,
         text: `${user.username}!  Welcome to room ${user.room_name}!!!`,
       });
+
+      io.sockets.in(user.room_name).emit("room_info", {
+        room: user.room_name,
+        userList: getUsersInRoom(user.room_name),
+      });
     }
   });
 
@@ -78,6 +87,12 @@ io.on("connection", (socket) => {
         userId: 0,
         text: `${user.username} has quited !!!`,
       });
+
+      io.sockets.in(user.room_name).emit("room_info", {
+        room: user.room_name,
+        userList: getUsersInRoom(user.room_name),
+      });
+
       callback({ msg: "success" });
     } else {
       callback({ msg: "error" });
@@ -99,25 +114,13 @@ app.use(
   })
 );
 
-// app.use(bodyParser.urlencoded({ extended: false }));
-
 //Translate the body of request into json format
 app.use(bodyParser.json());
 
 require("./data/passport")(passport);
 
-//Express Session
-// app.use(
-//   session({
-//     secret: "petercheng7788",
-//     resave: true,
-//     saveUninitialized: true,
-//   })
-// );
-
 //Passport middleware
 app.use(passport.initialize());
-// app.use(passport.session());
 
 app.get("/hello", (req, res) => {
   res.send("hello");
