@@ -18,9 +18,9 @@ const removeUser = (id) => {
 const getUser = (id) => users.find((user) => user.userId === id);
 
 const getUsersInRoom = (room) => {
-  console.log(users);
-  const userList = users.filter((user) => user.room === room);
-  console.log("userList", userList);
+  //console.log(users);
+  const userList = users.filter((user) => user.room_name === room);
+  //console.log("userList", userList);
   return userList;
 };
 
